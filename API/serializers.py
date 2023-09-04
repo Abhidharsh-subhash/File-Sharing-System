@@ -42,9 +42,22 @@ class UploadFileSerializer(serializers.ModelSerializer):
         return value
     
 class SignupSerializer(serializers.ModelSerializer):
+    # Define confirmpassword field as a separate serializer field
+    confirmpassword = serializers.CharField(write_only=True)
     class Meta:
         model = users
-        fields = ['email','username','password']
+        fields = ['email','username','password','confirmpassword']
+    def validate(self,data):
+        email=data.get('email')
+        if users.objects.filter(email=email).exists():
+            raise serializers.ValidationError("Email already exists.")
+        
+        password=data.get('password')
+        confirm_password=data.get('confirmpassword')
+        if password != confirm_password:
+            raise serializers.ValidationError("Passwords are mismatching.")
+
+        return data
     
 class FileListSerializer(serializers.ModelSerializer):
     class Meta:
