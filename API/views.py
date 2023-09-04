@@ -15,6 +15,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.request import Request
+from django.shortcuts import get_object_or_404
+from django.http import FileResponse
 
 # Create your views here.
 
@@ -130,5 +132,10 @@ class FileList(GenericAPIView):
         return Response({'message':"No files found"}, status=status.HTTP_204_NO_CONTENT)
     
 class FileDownload(GenericAPIView):
-    pass
+    def get(self,request):
+        file_id=request.data.get('file_id')
+        uploaded_file = Files.objects.get(pk=file_id)
+        response = FileResponse(uploaded_file.file, content_type='application/force-download')
+        response['Content-Disposition'] = f'attachment; filename="{uploaded_file.file.name}"'
+        return response
 

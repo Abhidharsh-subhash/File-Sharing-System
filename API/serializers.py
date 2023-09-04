@@ -86,4 +86,4 @@ class ClientLoginSerializer(serializers.ModelSerializer):
 class FileListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Files
-        fields = ['file', 'Uploaded_at']
+        fields = ['id','file', 'Uploaded_at']
