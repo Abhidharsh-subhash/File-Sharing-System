@@ -4,7 +4,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import OpsUserLoginSerializer,UploadFileSerializer,FileListSerializer,SignupSerializer
+from .serializers import OpsUserLoginSerializer,UploadFileSerializer,FileListSerializer,SignupSerializer,ClientLoginSerializer
 from .models import Files
 from .models import users
 from .send_email import send_mail
@@ -56,6 +56,7 @@ class ClientSignup(GenericAPIView):
                 with transaction.atomic():
                     user = users(email=email, username=username)
                     user.set_password(password)
+                    user.is_client=True
                     user.save()
                     #encoding the user id
                     uidb64=urlsafe_base64_encode(smart_bytes(user.id))
@@ -101,14 +102,33 @@ class PasswordTokenCheck(GenericAPIView):
                     'message':'Token is not valid request a new one'
                 }
                 return Response(data=response,status=status.HTTP_401_UNAUTHORIZED)
-    
+
+class ClientLogin(GenericAPIView):
+    serializer_class=ClientLoginSerializer
+    def post(self,request):
+        data=request.data
+        serializer=self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        user=serializer.validated_data['user']
+        tokens=RefreshToken.for_user(user)
+        response={
+            'message':'User login successfull',
+            'access':str(tokens.access_token),
+            'refresh':str(tokens),
+        }
+        return Response(data=response,status=status.HTTP_200_OK)
+
 class FileList(GenericAPIView):
-    permission_classes = [Is_client]
+    # permission_classes = [Is_client]
     serializer_class=FileListSerializer
+    queryset=Files.objects.all()
     def get(self,request):
-        files=Files.objects.all()
-        serializer=self.serializer_class(data=files,many=True)
-        if not files:
-            return Response({'message':"No files found"}, status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.data)
+        data=self.get_queryset()
+        if data.exists():
+            serializer=self.serializer_class(data,many=True)
+            return Response(data=serializer.data,status=status.HTTP_200_OK)
+        return Response({'message':"No files found"}, status=status.HTTP_204_NO_CONTENT)
+    
+class FileDownload(GenericAPIView):
+    pass
 

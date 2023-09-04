@@ -58,7 +58,31 @@ class SignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Passwords are mismatching.")
 
         return data
-    
+
+class ClientLoginSerializer(serializers.ModelSerializer):
+    email=serializers.EmailField(validators=[EmailValidator()])
+    password=serializers.CharField(style={'input-type':'password'})
+    class Meta:
+        model = users
+        fields = ['email','password']
+    def validate(self, attrs):
+        email=attrs.get('email')
+        password=attrs.get('password')
+        if email and password:
+            user=authenticate(email=email,password=password)
+            if user:
+                if not user.is_client:
+                    raise serializers.ValidationError('You are not authorized to perform this action')
+                elif not user.is_active:
+                    raise serializers.ValidationError('Confirm your E-mail to login')
+                else:
+                    attrs['user']=user
+            else:
+                raise serializers.ValidationError('Invalid Username or Password')
+        else:
+            raise serializers.ValidationError('Username and Password are required')
+        return attrs
+
 class FileListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Files
