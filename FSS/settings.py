@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG',cast=bool)
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -54,13 +54,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-#this we will use only for configuring the jwt token
+# this we will use only for configuring the jwt token
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    #by making it true while we paste refresh token in the refresh url it will return access and refresh token
+    # by making it true while we paste refresh token in the refresh url it will return access and refresh token
     "ROTATE_REFRESH_TOKENS": True,
-    #by making this true i can limit the creation of access and refresh token by using refresh token else we can create the access token using the older refresh token 
+    # by making this true i can limit the creation of access and refresh token by using refresh token else we can create the access token using the older refresh token
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
 
@@ -98,13 +98,15 @@ SIMPLE_JWT = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Default Django authentication backend
-    'rest_framework_simplejwt.authentication.JWTAuthentication',  # Token-based authentication backend
+    # Default Django authentication backend
+    'django.contrib.auth.backends.ModelBackend',
+    # Token-based authentication backend
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
 ]
 
 ROOT_URLCONF = 'FSS.urls'
 
-#it is used to specify the custom user model
+# it is used to specify the custom user model
 AUTH_USER_MODEL = 'API.Users'
 
 TEMPLATES = [
@@ -181,10 +183,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-#Email otp configuration
-EMAIL_BACKEND = config('EMAIL_BACKEND') 
+# Email otp configuration
+EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = 587 
-EMAIL_USE_TLS = True 
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
